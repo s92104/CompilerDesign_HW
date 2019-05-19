@@ -570,32 +570,17 @@ char *yytext;
 	struct SymbolTableStruct
 	{
 		char name[100];
-		enum symbolType type;
+		char type[10];
 	};
 	struct SymbolTableStruct allSymbolTable[100];
 	int allSymbolCount=0;
-	int lookup(struct SymbolTableStruct symbolTable[],char compareString[100],int symbolCount)
-	{
-		for(int i=0;i<symbolCount;i++)
-		{
-			if(!strcmp(symbolTable[i].name,compareString))
-				return i;
-		}
-		return -1;
-	}
-	void dump(struct SymbolTableStruct symbolTable[],int symbolCount)	
-	{
-		for(int i=0;i<symbolCount;i++)
-			printf("%d:%s\n",lookup(symbolTable,symbolTable[i].name,symbolCount),symbolTable[i].name);
-		//printf("%s\n%d\n",symbolTable[i].name,lookup(symbolTable,symbolTable[i].name,symbolCount));
-	}
 	char content[256];
 	void addContent()	{strcat(content,yytext);}
 	int lineCount=0;
 
-#line 596 "lex.yy.c"
+#line 581 "lex.yy.c"
 
-#line 598 "lex.yy.c"
+#line 583 "lex.yy.c"
 
 #define INITIAL 0
 #define COMMENT 1
@@ -813,9 +798,9 @@ YY_DECL
 		}
 
 	{
-#line 39 "CompilerProject1_revise.l"
+#line 24 "CompilerProject1_revise.l"
 
-#line 818 "lex.yy.c"
+#line 803 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -880,318 +865,318 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 40 "CompilerProject1_revise.l"
+#line 25 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return COMMA;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 41 "CompilerProject1_revise.l"
+#line 26 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return COLON;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 42 "CompilerProject1_revise.l"
+#line 27 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return SEMICOLON;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 43 "CompilerProject1_revise.l"
+#line 28 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return LEFTPARENTHESES;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 44 "CompilerProject1_revise.l"
+#line 29 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return RIGHTPARENTHESES;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 45 "CompilerProject1_revise.l"
+#line 30 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return LEFTSQUAREBRACKETS;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 46 "CompilerProject1_revise.l"
+#line 31 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return RIGHTSQUAREBRACKETS;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 47 "CompilerProject1_revise.l"
+#line 32 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return BRACKETS;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 48 "CompilerProject1_revise.l"
+#line 33 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return BRACKETS;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 50 "CompilerProject1_revise.l"
+#line 35 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return PLUS;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 51 "CompilerProject1_revise.l"
+#line 36 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return MINUS;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 52 "CompilerProject1_revise.l"
+#line 37 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return MULTIPLY;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 53 "CompilerProject1_revise.l"
+#line 38 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return DIVIDE;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 54 "CompilerProject1_revise.l"
+#line 39 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return REMAINDER;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 56 "CompilerProject1_revise.l"
+#line 41 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return LESS;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 57 "CompilerProject1_revise.l"
+#line 42 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return LESSEQUAL;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 58 "CompilerProject1_revise.l"
+#line 43 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return GREATEREQUAL;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 59 "CompilerProject1_revise.l"
+#line 44 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return GREATER;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 60 "CompilerProject1_revise.l"
+#line 45 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return EQUAL;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 61 "CompilerProject1_revise.l"
+#line 46 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return NOTEQUAL;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 62 "CompilerProject1_revise.l"
+#line 47 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return AND;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 63 "CompilerProject1_revise.l"
+#line 48 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return OR;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 64 "CompilerProject1_revise.l"
+#line 49 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return NOT;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 66 "CompilerProject1_revise.l"
+#line 51 "CompilerProject1_revise.l"
 {addContent();/*printf("<'%s'>\n",yytext);*/return ASSIGNMENT;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 68 "CompilerProject1_revise.l"
+#line 53 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return ARRAY;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 69 "CompilerProject1_revise.l"
-{addContent();/*printf("<%s>\n",yytext);*/return BOOLEAN;}
+#line 54 "CompilerProject1_revise.l"
+{addContent();/*printf("<%s>\n",yytext);*/sscanf("boolean","%s",&yylval);return BOOLEAN;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 70 "CompilerProject1_revise.l"
+#line 55 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return BEGIN_;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 71 "CompilerProject1_revise.l"
+#line 56 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return BREAK;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 72 "CompilerProject1_revise.l"
+#line 57 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return CHAR;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 73 "CompilerProject1_revise.l"
+#line 58 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return CASE;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 74 "CompilerProject1_revise.l"
+#line 59 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return CONST;}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 75 "CompilerProject1_revise.l"
+#line 60 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return CONTINUE;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 76 "CompilerProject1_revise.l"
+#line 61 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return DO;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 77 "CompilerProject1_revise.l"
+#line 62 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return ELSE;}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 78 "CompilerProject1_revise.l"
+#line 63 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return END;}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 79 "CompilerProject1_revise.l"
+#line 64 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return EXIT;}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 80 "CompilerProject1_revise.l"
+#line 65 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return FOR;}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 81 "CompilerProject1_revise.l"
+#line 66 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return FN;}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 82 "CompilerProject1_revise.l"
+#line 67 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return IF;}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 83 "CompilerProject1_revise.l"
+#line 68 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return IN;}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 84 "CompilerProject1_revise.l"
-{addContent();/*printf("<%s>\n",yytext);*/return INTEGER;}
+#line 69 "CompilerProject1_revise.l"
+{addContent();/*printf("<%s>\n",yytext);*/sscanf("integer","%s",&yylval);return INTEGER;}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 85 "CompilerProject1_revise.l"
+#line 70 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return LOOP;}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 86 "CompilerProject1_revise.l"
+#line 71 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return MODULE;}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 87 "CompilerProject1_revise.l"
+#line 72 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return PRINT;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 88 "CompilerProject1_revise.l"
+#line 73 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return PRINTLN;}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 89 "CompilerProject1_revise.l"
+#line 74 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return PROCEDURE;}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 90 "CompilerProject1_revise.l"
+#line 75 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return REPEAT;}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 91 "CompilerProject1_revise.l"
+#line 76 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return RETURN;}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 92 "CompilerProject1_revise.l"
-{addContent();/*printf("<%s>\n",yytext);*/return REAL;}
+#line 77 "CompilerProject1_revise.l"
+{addContent();/*printf("<%s>\n",yytext);*/sscanf("real","%s",&yylval);return REAL;}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 93 "CompilerProject1_revise.l"
-{addContent();/*printf("<%s>\n",yytext);*/return STRING;}
+#line 78 "CompilerProject1_revise.l"
+{addContent();/*printf("<%s>\n",yytext);*/sscanf("string","%s",&yylval);return STRING;}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 94 "CompilerProject1_revise.l"
+#line 79 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return RECORD;}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 95 "CompilerProject1_revise.l"
+#line 80 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return THEN;}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 96 "CompilerProject1_revise.l"
+#line 81 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return TYPE;}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 97 "CompilerProject1_revise.l"
+#line 82 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return USE;}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 98 "CompilerProject1_revise.l"
+#line 83 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return UTIL;}
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 99 "CompilerProject1_revise.l"
+#line 84 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return VAR;}
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 100 "CompilerProject1_revise.l"
+#line 85 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return WHILE;}
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 101 "CompilerProject1_revise.l"
+#line 86 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return READ;}
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 102 "CompilerProject1_revise.l"
+#line 87 "CompilerProject1_revise.l"
 {addContent();/*printf("<%s>\n",yytext);*/return OF;}
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 104 "CompilerProject1_revise.l"
+#line 89 "CompilerProject1_revise.l"
 {addContent();/*printf("<integer:%s>\n",yytext);*/return INTEGERCONSTANTS;}
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 105 "CompilerProject1_revise.l"
+#line 90 "CompilerProject1_revise.l"
 {addContent();/*printf("<boolean:%s>\n",yytext);*/return BOOLEANCONSTANTS;}
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 106 "CompilerProject1_revise.l"
+#line 91 "CompilerProject1_revise.l"
 {addContent();/*printf("<real:%s>\n",yytext);*/return REALCONSTANTS;}
 	YY_BREAK
 case 63:
 /* rule 63 can match eol */
 YY_RULE_SETUP
-#line 107 "CompilerProject1_revise.l"
+#line 92 "CompilerProject1_revise.l"
 {
 				char c=input();	
 				if(c=='\"')
@@ -1219,7 +1204,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 132 "CompilerProject1_revise.l"
+#line 117 "CompilerProject1_revise.l"
 {
 								if(lookup(allSymbolTable,yytext,allSymbolCount)==-1)
 								{
@@ -1234,28 +1219,28 @@ YY_RULE_SETUP
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 144 "CompilerProject1_revise.l"
+#line 129 "CompilerProject1_revise.l"
 {addContent();}
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 145 "CompilerProject1_revise.l"
+#line 130 "CompilerProject1_revise.l"
 {addContent();}
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 147 "CompilerProject1_revise.l"
+#line 132 "CompilerProject1_revise.l"
 {addContent();BEGIN(COMMENT);}
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 148 "CompilerProject1_revise.l"
+#line 133 "CompilerProject1_revise.l"
 {addContent();}
 	YY_BREAK
 case 69:
 /* rule 69 can match eol */
 YY_RULE_SETUP
-#line 149 "CompilerProject1_revise.l"
+#line 134 "CompilerProject1_revise.l"
 {
 				lineCount++;
 				//printf("%d: %s\n",lineCount,content);
@@ -1264,13 +1249,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 154 "CompilerProject1_revise.l"
+#line 139 "CompilerProject1_revise.l"
 {addContent();BEGIN(INITIAL);}
 	YY_BREAK
 case 71:
 /* rule 71 can match eol */
 YY_RULE_SETUP
-#line 156 "CompilerProject1_revise.l"
+#line 141 "CompilerProject1_revise.l"
 {
 		lineCount++;
 		//printf("%d: %s\n",lineCount,content);
@@ -1279,7 +1264,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 162 "CompilerProject1_revise.l"
+#line 147 "CompilerProject1_revise.l"
 {
 			addContent();
 			//printf("<'.'>\n");
@@ -1292,10 +1277,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 171 "CompilerProject1_revise.l"
+#line 156 "CompilerProject1_revise.l"
 ECHO;
 	YY_BREAK
-#line 1298 "lex.yy.c"
+#line 1283 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 	yyterminate();
@@ -2301,6 +2286,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 171 "CompilerProject1_revise.l"
+#line 156 "CompilerProject1_revise.l"
 
 

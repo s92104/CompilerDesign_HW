@@ -5,14 +5,10 @@
 	extern int lineCount;
 	
 	//SymbolTable
-	enum symbolType
-	{
-		string,integer,boolean,real
-	};
 	struct SymbolTableStruct
 	{
 		char name[100];
-		enum symbolType type;
+		char type[10];
 	};
 	struct SymbolTableStruct globalSymbolTable[100];
 	struct SymbolTableStruct localSymbolTable[100];
@@ -23,7 +19,7 @@
 	struct ProcedureTableStruct
 	{
 		char name[100];
-		enum symbolType type;
+		char type[10];
 	};
 	struct ProcedureTableStruct procedureTable[100];
 	int procedureCount=0;
@@ -60,14 +56,36 @@
 			printf("\"%s\" No Declaration:line%d\n",name,lineCount+1);
 	}
 	
+	//DataType
+	char dataType[10];
+	int typeCount=0;
+	
+	void addType(char type[])
+	{
+		if(scope==global)
+		{
+			for(int i=globalSymbolCount-typeCount;i<globalSymbolCount;i++)
+			{
+				sscanf(type,"%s",globalSymbolTable[i].type);
+			}
+		}
+		else
+		{
+			for(int i=localSymbolCount-typeCount;i<localSymbolCount;i++)
+			{
+				sscanf(type,"%s",localSymbolTable[i].type);
+			}
+		}
+		typeCount=0;
+	}
 	void addSymbol(char name[])	
 	{
+		if(!strcmp("",name))return;
 		if(scope==global)
 		{
 			if(lookup(globalSymbolTable,name,globalSymbolCount)==-1)
 			{
-				globalSymbolTable[globalSymbolCount].name[0]='\0';
-				strcat(globalSymbolTable[globalSymbolCount].name,name);
+				sscanf(name,"%s",globalSymbolTable[globalSymbolCount].name);
 				globalSymbolCount++;
 			}
 		}
@@ -75,12 +93,27 @@
 		{
 			if(lookup(localSymbolTable,name,localSymbolCount)==-1)
 			{
-				localSymbolTable[localSymbolCount].name[0]='\0';
-				strcat(localSymbolTable[localSymbolCount].name,name);
+				sscanf(name,"%s",localSymbolTable[localSymbolCount].name);
 				localSymbolCount++;
 			}
+		}	
+	}
+	int lookup(struct SymbolTableStruct symbolTable[],char compareString[],int symbolCount)
+	{
+		for(int i=0;i<symbolCount;i++)
+		{
+			if(!strcmp(symbolTable[i].name,compareString))
+				return i;
 		}
-			
+		return -1;
+	}
+	void dump(struct SymbolTableStruct symbolTable[],int symbolCount)	
+	{
+		if(scope==local)
+			printf("%s:%s\n",procedureTable[procedureCount-1].name,procedureTable[procedureCount-1].type);
+		for(int i=0;i<symbolCount;i++)
+			printf("%d:%s:%s\n",lookup(symbolTable,symbolTable[i].name,symbolCount),symbolTable[i].name,symbolTable[i].type);
+		printf("\n");
 	}
 %}
 
@@ -93,6 +126,12 @@
 	char stringVal[100];
 }
 %type <stringVal> IDENTIFIER
+%type <stringVal> datatype
+%type <stringVal> STRING
+%type <stringVal> INTEGER
+%type <stringVal> REAL
+%type <stringVal> BOOLEAN
+%type <stringVal> proceduretype
 
 %left OR
 %left AND
@@ -115,6 +154,7 @@ IDENTIFIER
 {
 	if(strcmp($2,$9))
 		printf("Wrong Program Name:line%d\n",lineCount+1);
+	dump(globalSymbolTable,globalSymbolCount);
 } 
 PERIOD
 ;
@@ -132,21 +172,24 @@ constant_decs:constant_dec constant_decs
 |constant_dec array_decs	
 |constant_dec	
 ;
-constant_dec:IDENTIFIER EQUAL constant SEMICOLON	{addSymbol($1);}	
+constant_dec:IDENTIFIER EQUAL constant SEMICOLON	{addSymbol($1);typeCount++;addType("FUCK");}	
 ;
 //Variables
 variable_decs:variable_dec variable_decs
 |variable_dec array_decs	
 |variable_dec	
 ;
-variable_dec:identifiers COLON datatype SEMICOLON	
+variable_dec:identifiers COLON datatype SEMICOLON	{addType($3);}	
 ;
-
 //Array
 array_decs:array_dec array_decs	
 |array_dec	
 ;
-array_dec:identifiers COLON ARRAY LEFTSQUAREBRACKETS INTEGERCONSTANTS COMMA INTEGERCONSTANTS RIGHTSQUAREBRACKETS OF datatype SEMICOLON	
+array_dec:identifiers COLON ARRAY LEFTSQUAREBRACKETS INTEGERCONSTANTS COMMA INTEGERCONSTANTS RIGHTSQUAREBRACKETS OF datatype SEMICOLON	{addType($10);}	
+;
+//Identifiers
+identifiers:IDENTIFIER COMMA identifiers	{addSymbol($1);typeCount++;}
+|IDENTIFIER	{addSymbol($1);typeCount++;}
 ;
 
 //FunctionDeclarations
@@ -155,19 +198,23 @@ IDENTIFIER
 {
 	if(strcmp($2,$10))
 		printf("Wrong Procedure Name:line%d\n",lineCount+1);
+	sscanf($5,"%s",procedureTable[procedureCount-1].type);
+	
+	dump(localSymbolTable,localSymbolCount);
+	
 	localSymbolCount=0;
 } 
 SEMICOLON function_decs	
 |
 ;
-arguments:LEFTPARENTHESES IDENTIFIER COLON datatype argument RIGHTPARENTHESES	{addSymbol($2);}	
+arguments:LEFTPARENTHESES IDENTIFIER COLON datatype argument RIGHTPARENTHESES	{addSymbol($2);typeCount++;addType($4);}	
 |
 ;
-argument:COMMA IDENTIFIER COLON datatype argument	{addSymbol($2);}
+argument:COMMA IDENTIFIER COLON datatype argument	{addSymbol($2);typeCount++;addType($4);}
 |
 ;
-proceduretype:COLON datatype	
-|
+proceduretype:COLON datatype	{sscanf($2,"%s",$$);}
+|	{sscanf("void","%s",$$);}
 ;
 
 //Statements
@@ -239,14 +286,10 @@ constant:STRINGCONSTANTS
 |REALCONSTANTS	
 ;
 //DataType
-datatype:STRING	
-|INTEGER	
-|REAL	
-|BOOLEAN	
-;
-//Identifiers
-identifiers:IDENTIFIER COMMA identifiers	{addSymbol($1);}
-|IDENTIFIER	{addSymbol($1);}
+datatype:STRING	{sscanf($1,"%s",$$);}
+|INTEGER	{sscanf($1,"%s",$$);}
+|REAL	{sscanf($1,"%s",$$);}
+|BOOLEAN	{sscanf($1,"%s",$$);}
 ;
 //ZeroStatements
 zero_statements:statements	

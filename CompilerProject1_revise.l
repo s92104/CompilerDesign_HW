@@ -8,25 +8,10 @@
 	struct SymbolTableStruct
 	{
 		char name[100];
-		enum symbolType type;
+		char type[10];
 	};
 	struct SymbolTableStruct allSymbolTable[100];
 	int allSymbolCount=0;
-	int lookup(struct SymbolTableStruct symbolTable[],char compareString[100],int symbolCount)
-	{
-		for(int i=0;i<symbolCount;i++)
-		{
-			if(!strcmp(symbolTable[i].name,compareString))
-				return i;
-		}
-		return -1;
-	}
-	void dump(struct SymbolTableStruct symbolTable[],int symbolCount)	
-	{
-		for(int i=0;i<symbolCount;i++)
-			printf("%d:%s\n",lookup(symbolTable,symbolTable[i].name,symbolCount),symbolTable[i].name);
-		//printf("%s\n%d\n",symbolTable[i].name,lookup(symbolTable,symbolTable[i].name,symbolCount));
-	}
 	char content[256];
 	void addContent()	{strcat(content,yytext);}
 	int lineCount=0;
@@ -66,7 +51,7 @@ digits	{digit}+
 :=	{addContent();/*printf("<'%s'>\n",yytext);*/return ASSIGNMENT;}
 
 array	{addContent();/*printf("<%s>\n",yytext);*/return ARRAY;}
-boolean	{addContent();/*printf("<%s>\n",yytext);*/return BOOLEAN;}
+boolean	{addContent();/*printf("<%s>\n",yytext);*/sscanf("boolean","%s",&yylval);return BOOLEAN;}
 begin	{addContent();/*printf("<%s>\n",yytext);*/return BEGIN_;}
 break	{addContent();/*printf("<%s>\n",yytext);*/return BREAK;}
 char	{addContent();/*printf("<%s>\n",yytext);*/return CHAR;}
@@ -81,7 +66,7 @@ for	{addContent();/*printf("<%s>\n",yytext);*/return FOR;}
 fn	{addContent();/*printf("<%s>\n",yytext);*/return FN;}
 if	{addContent();/*printf("<%s>\n",yytext);*/return IF;}
 in	{addContent();/*printf("<%s>\n",yytext);*/return IN;}
-integer	{addContent();/*printf("<%s>\n",yytext);*/return INTEGER;}
+integer	{addContent();/*printf("<%s>\n",yytext);*/sscanf("integer","%s",&yylval);return INTEGER;}
 loop	{addContent();/*printf("<%s>\n",yytext);*/return LOOP;}
 module	{addContent();/*printf("<%s>\n",yytext);*/return MODULE;}
 print	{addContent();/*printf("<%s>\n",yytext);*/return PRINT;}
@@ -89,8 +74,8 @@ println	{addContent();/*printf("<%s>\n",yytext);*/return PRINTLN;}
 procedure	{addContent();/*printf("<%s>\n",yytext);*/return PROCEDURE;}
 repeat	{addContent();/*printf("<%s>\n",yytext);*/return REPEAT;}
 return	{addContent();/*printf("<%s>\n",yytext);*/return RETURN;}
-real	{addContent();/*printf("<%s>\n",yytext);*/return REAL;}
-string	{addContent();/*printf("<%s>\n",yytext);*/return STRING;}
+real	{addContent();/*printf("<%s>\n",yytext);*/sscanf("real","%s",&yylval);return REAL;}
+string	{addContent();/*printf("<%s>\n",yytext);*/sscanf("string","%s",&yylval);return STRING;}
 record	{addContent();/*printf("<%s>\n",yytext);*/return RECORD;}
 then	{addContent();/*printf("<%s>\n",yytext);*/return THEN;}
 type	{addContent();/*printf("<%s>\n",yytext);*/return TYPE;}
