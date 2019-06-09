@@ -46,7 +46,7 @@ digits	{digit}+
 "<>"	{addContent();/*printf("<'%s'>\n",yytext);*/return NOTEQUAL;}
 &&	{addContent();/*printf("<'%s'>\n",yytext);*/return AND;}
 "||"	{addContent();/*printf("<'%s'>\n",yytext);*/return OR;}
-~	{addContent();/*printf("<'%s'>\n",yytext);*/return NOT;}
+~	{addContent();/*printf("<'%s'>\n",yytext);*/return XOR;}
 
 :=	{addContent();/*printf("<'%s'>\n",yytext);*/return ASSIGNMENT;}
 
@@ -86,8 +86,9 @@ while	{addContent();/*printf("<%s>\n",yytext);*/return WHILE;}
 read	{addContent();/*printf("<%s>\n",yytext);*/return READ;}
 of	{addContent();/*printf("<%s>\n",yytext);*/return OF;}
 
-{digits}	{addContent();/*printf("<integer:%s>\n",yytext);*/return INTEGERCONSTANTS;}
-true|false	{addContent();/*printf("<boolean:%s>\n",yytext);*/return BOOLEANCONSTANTS;}
+{digits}	{addContent();/*printf("<integer:%s>\n",yytext);*/sscanf(yytext,"%d",&yylval);return INTEGERCONSTANTS;}
+true	{addContent();/*printf("<boolean:%s>\n",yytext);*/sscanf("1","%d",&yylval);return BOOLEANCONSTANTS;}
+false	{addContent();/*printf("<boolean:%s>\n",yytext);*/sscanf("0","%d",&yylval);return BOOLEANCONSTANTS;}
 {digits}"."{digits}([Ee][+-]?{digits})?	{addContent();/*printf("<real:%s>\n",yytext);*/return REALCONSTANTS;}
 \"[^\"]*\"	{
 				char c=input();	
@@ -109,6 +110,7 @@ true|false	{addContent();/*printf("<boolean:%s>\n",yytext);*/return BOOLEANCONST
 					}	
 					unput(c);	
 					//printf("<string:%s>\n",yytext);
+					strcpy(yylval.stringVal,yytext);
 					return STRINGCONSTANTS;
 				}	
 				unput(c);

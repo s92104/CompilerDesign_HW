@@ -66,7 +66,7 @@ extern int yydebug;
     NOTEQUAL = 276,
     AND = 277,
     OR = 278,
-    NOT = 279,
+    XOR = 279,
     ASSIGNMENT = 280,
     ARRAY = 281,
     BOOLEAN = 282,
@@ -134,7 +134,7 @@ extern int yydebug;
 #define NOTEQUAL 276
 #define AND 277
 #define OR 278
-#define NOT 279
+#define XOR 279
 #define ASSIGNMENT 280
 #define ARRAY 281
 #define BOOLEAN 282
@@ -184,7 +184,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 125 "CompilerProject2.y" /* yacc.c:1909  */
+#line 187 "CompilerProject2.y" /* yacc.c:1909  */
 
 	int integerVal;
 	char stringVal[100];
