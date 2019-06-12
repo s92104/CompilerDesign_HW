@@ -4,6 +4,9 @@
 
 	extern int lineCount;
 	
+	//File
+	FILE *file;
+	
 	//SymbolTable
 	enum varconstEnum
 	{
@@ -115,7 +118,7 @@
 	//Parameter Match
 	int parameterCount=0;
 	char callProcedureName[100];
-	
+
 	void addType(char type[],enum varconstEnum varconst)
 	{
 		if(scope==global)
@@ -126,7 +129,7 @@
 				globalSymbolTable[i].varconst=varconst;
 				//Generate Code
 				if(varconst==variable)
-					printf("field static int %s\n",globalSymbolTable[i].name);
+					fprintf(file,"field static int %s\n",globalSymbolTable[i].name);
 			}
 		}
 		else
@@ -177,7 +180,10 @@
 	}
 	
 	//Label
-	int labelCount=0;
+	int ifLabelCount=0;
+	int whileLabelCount=0;
+	int booleanLabelCount=0;
+	
 %}
 
 
@@ -216,7 +222,7 @@ program:MODULE
 IDENTIFIER
 {
 	//Generate Code
-	printf("class a\n{\n");
+	fprintf(file,"class a\n{\n");
 }
 variableconstant_decs
 {
@@ -226,7 +232,7 @@ function_decs
 BEGIN_ 
 {
 	//Generate Code
-	printf("method public static void main(java.lang.String[])\nmax_stack 15\nmax_locals 15\n{\n");
+	fprintf(file,"method public static void main(java.lang.String[])\nmax_stack 15\nmax_locals 15\n{\n");
 }
 zero_statements END 
 IDENTIFIER
@@ -234,7 +240,7 @@ IDENTIFIER
 	if(strcmp($2,$11))
 		printf("Wrong Program Name:line%d\n",lineCount+1);
 	//Generate Code
-	printf("return\n}\n}");
+	fprintf(file,"return\n}\n}");
 } 
 PERIOD
 ;
@@ -273,12 +279,31 @@ identifiers:IDENTIFIER COMMA identifiers	{addSymbol($1);typeCount++;}
 ;
 
 //FunctionDeclarations
-function_decs:PROCEDURE IDENTIFIER{addProcedure($2);} arguments proceduretype{sscanf($5,"%s",procedureTable[procedureCount-1].type);} variableconstant_decs BEGIN_ statements END 
+function_decs:PROCEDURE 
+IDENTIFIER
+{
+	addProcedure($2);
+	//Generate Code
+	fprintf(file,"method public static int %s(",$2);
+} 
+arguments 
+proceduretype
+{
+	sscanf($5,"%s",procedureTable[procedureCount-1].type);
+	//Generate Code
+	fprintf(file,")\nmax_stack 15\nmax_locals 15\n{\n");
+} 
+variableconstant_decs BEGIN_ statements END 
 IDENTIFIER
 {
 	if(strcmp($2,$11))
 		printf("Wrong Procedure Name:line%d\n",lineCount+1);
 	localSymbolCount=0;
+	//Generate Code
+	if(strcmp("void",$5))
+		fprintf(file,"ireturn\n}\n");
+	else
+		fprintf(file,"return\n}\n");
 } 
 SEMICOLON function_decs	
 |
@@ -290,6 +315,8 @@ arguments:LEFTPARENTHESES IDENTIFIER COLON datatype
 	addType($4,variable);
 	sscanf($4,"%s",procedureTable[procedureCount-1].formalType[procedureTable[procedureCount-1].formalTypeCount]);
 	procedureTable[procedureCount-1].formalTypeCount++;
+	//Generate Code
+	fprintf(file,"int");
 } 
 argument RIGHTPARENTHESES	
 |
@@ -301,6 +328,8 @@ argument:COMMA IDENTIFIER COLON datatype
 	addType($4,variable);
 	sscanf($4,"%s",procedureTable[procedureCount-1].formalType[procedureTable[procedureCount-1].formalTypeCount]);
 	procedureTable[procedureCount-1].formalTypeCount++;
+	//Generate Code
+	fprintf(file,",int");
 }
 argument	
 |
@@ -318,6 +347,15 @@ IDENTIFIER{checkScope($1);} ASSIGNMENT expression SEMICOLON
 {
 	if(strcmp(getSymbolType($1),$4))
 			printf("Assignment Not Consistent:line%d\n",lineCount+1);
+	//Generate Code
+	int index=lookup(globalSymbolTable,$1,globalSymbolCount);
+	if(index!=-1)
+		fprintf(file,"putstatic int a.%s\n",$1);
+	else
+	{
+		index=lookup(localSymbolTable,$1,localSymbolCount);
+		fprintf(file,"istore %d\n",index);
+	}
 }
 |IDENTIFIER{checkScope($1);} LEFTSQUAREBRACKETS expression RIGHTSQUAREBRACKETS ASSIGNMENT expression SEMICOLON
 {
@@ -326,24 +364,74 @@ IDENTIFIER{checkScope($1);} ASSIGNMENT expression SEMICOLON
 	if(strcmp($4,"integer"))
 		printf("Only Integer:line%d\n",lineCount+1);
 }
-|PRINT expression SEMICOLON	
-|PRINTLN expression SEMICOLON	
+|PRINT
+{
+	//Generate Code
+	fprintf(file,"getstatic java.io.PrintStream java.lang.System.out\n");
+} 
+expression 
+SEMICOLON
+{
+	//Generate Code
+	if(!strcmp("string",$3))
+		fprintf(file,"invokevirtual void java.io.PrintStream.print(java.lang.String)\n");
+	else if(!strcmp("boolean",$3))
+		fprintf(file,"invokevirtual void java.io.PrintStream.print(boolean)\n");
+	else
+		fprintf(file,"invokevirtual void java.io.PrintStream.print(int)\n");
+}	
+|PRINTLN
+{
+	//Generate Code
+	fprintf(file,"getstatic java.io.PrintStream java.lang.System.out\n");
+}
+expression 
+SEMICOLON
+{
+	//Generate Code
+	if(!strcmp("string",$3))
+		fprintf(file,"invokevirtual void java.io.PrintStream.println(java.lang.String)\n");
+	else if(!strcmp("boolean",$3))
+		fprintf(file,"invokevirtual void java.io.PrintStream.println(boolean)\n");
+	else
+		fprintf(file,"invokevirtual void java.io.PrintStream.println(int)\n");
+}	
 |READ IDENTIFIER{checkScope($2);} SEMICOLON
 |RETURN SEMICOLON	
-|RETURN expression SEMICOLON	
-|IF LEFTPARENTHESES expression RIGHTPARENTHESES THEN zero_statements ELSE zero_statements END SEMICOLON
+|RETURN expression SEMICOLON
+|IF LEFTPARENTHESES expression RIGHTPARENTHESES 
+THEN 
+{
+	//Generate Code
+	fprintf(file,"ifeq Lif%d\n",ifLabelCount);
+} 
+zero_statements else_statements END 
+SEMICOLON
 {
 	if(strcmp($3,"boolean"))
 		printf("Only Boolean:line%d\n",lineCount+1);
 }
-|IF LEFTPARENTHESES expression RIGHTPARENTHESES THEN zero_statements END SEMICOLON	
+|WHILE
 {
-	if(strcmp($3,"boolean"))
-		printf("Only Boolean:line%d\n",lineCount+1);
-}
-|WHILE LEFTPARENTHESES expression RIGHTPARENTHESES DO zero_statements END SEMICOLON	
+	//Generate Code
+	fprintf(file,"Lwhile%d:\n",whileLabelCount);
+} 
+LEFTPARENTHESES 
+expression
 {
-	if(strcmp($3,"boolean"))
+	//Generate Code
+	fprintf(file,"ifeq Lwhile%d\n",whileLabelCount+1);
+} 
+RIGHTPARENTHESES DO 
+zero_statements
+{
+	//Generate Code
+	fprintf(file,"goto Lwhile%d\nLwhile%d:\n",whileLabelCount,whileLabelCount+1);
+	whileLabelCount+=2;
+} 
+END SEMICOLON	
+{
+	if(strcmp($4,"boolean"))
 		printf("Only Boolean:line%d\n",lineCount+1);
 }
 |IDENTIFIER{checkProcedure($1);} SEMICOLON 
@@ -351,15 +439,51 @@ IDENTIFIER{checkScope($1);} ASSIGNMENT expression SEMICOLON
 	int index=lookupProcedure(procedureTable,$1,procedureCount);
 	if(procedureTable[index].formalTypeCount!=0)
 		printf("Parameter Type Not Match:line%d\n",lineCount+1);
+	//Generate Code
+	if(strcmp("void",procedureTable[index].type))
+		fprintf(file,"invokestatic int a.%s()\n",$1);
+	else
+		fprintf(file,"invokestatic void a.%s()\n",$1);
+	
 }
-|IDENTIFIER{checkProcedure($1);sscanf($1,"%s",callProcedureName);} LEFTPARENTHESES commaseparated_expressions RIGHTPARENTHESES SEMICOLON
+|IDENTIFIER
+{
+	checkProcedure($1);
+	sscanf($1,"%s",callProcedureName);
+} 
+LEFTPARENTHESES commaseparated_expressions RIGHTPARENTHESES SEMICOLON
+{
+	//Generate Code
+	int index=lookupProcedure(procedureTable,$1,procedureCount);
+	fprintf(file,"invokestatic int a.%s(int",$1);
+	for(int i=0;i<procedureTable[index].formalTypeCount-1;i++)
+		fprintf(file,",int");
+	fprintf(file,")\n");
+}
 ;
+//Else Statements
+else_statements:ELSE
+{
+	fprintf(file,"goto Lif%d\nLif%d:\n",ifLabelCount+1,ifLabelCount);
+} 
+zero_statements
+{
+	fprintf(file,"Lif%d:\n",ifLabelCount+1);
+	ifLabelCount+=2;
+}
+|
+{
+	fprintf(file,"Lif%d:\n",ifLabelCount);
+	ifLabelCount++;
+}
+;
+
 //Expression
 expression:MINUS expression %prec UMINUS	
 {
 	sscanf($2,"%s",$$);
 	//Generate Code
-	printf("ineg\n");
+	fprintf(file,"ineg\n");
 }
 |expression MULTIPLY expression	
 {
@@ -367,7 +491,7 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf($1,"%s",$$);
 	//Generate Code
-	printf("imul\n");
+	fprintf(file,"imul\n");
 }
 |expression DIVIDE expression
 {
@@ -375,7 +499,7 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf($1,"%s",$$);
 	//Generate Code
-	printf("idiv\n");
+	fprintf(file,"idiv\n");
 }	
 |expression PLUS expression	
 {
@@ -383,7 +507,7 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf($1,"%s",$$);
 	//Generate Code
-	printf("iadd\n");
+	fprintf(file,"iadd\n");
 }
 |expression MINUS expression	
 {
@@ -391,7 +515,7 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf($1,"%s",$$);
 	//Generate Code
-	printf("isub\n");
+	fprintf(file,"isub\n");
 }
 |expression REMAINDER expression	
 {
@@ -399,7 +523,7 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf($1,"%s",$$);
 	//Generate Code
-	printf("irem\n");
+	fprintf(file,"irem\n");
 }
 |LEFTPARENTHESES expression RIGHTPARENTHESES	{sscanf($2,"%s",$$);}
 |constant	
@@ -407,9 +531,9 @@ expression:MINUS expression %prec UMINUS
 	sscanf($1,"%s",$$);
 	//Generate Code
 	if(strcmp($1,"string"))
-		printf("sipush %d\n",constInt);
+		fprintf(file,"sipush %d\n",constInt);
 	else
-		printf("ldc \"%s\"\n",constString);
+		fprintf(file,"ldc \"%s\"\n",constString);
 }
 |IDENTIFIER //Variable or Function
 {
@@ -425,14 +549,14 @@ expression:MINUS expression %prec UMINUS
 		{
 			//Variable
 			if(globalSymbolTable[index].varconst==variable)
-				printf("getstatic int a.%s\n",$1);
+				fprintf(file,"getstatic int a.%s\n",$1);
 			//Constant
 			else
 			{
 				if(strcmp(type,"string"))
-					printf("sipush %d\n",globalSymbolTable[index].intValue);
+					fprintf(file,"sipush %d\n",globalSymbolTable[index].intValue);
 				else
-					printf("ldc \"%s\"\n",globalSymbolTable[index].strValue);
+					fprintf(file,"ldc \"%s\"\n",globalSymbolTable[index].strValue);
 			}			
 		}
 		//Local
@@ -440,13 +564,13 @@ expression:MINUS expression %prec UMINUS
 		{
 			index=lookup(localSymbolTable,$1,localSymbolCount);
 			if(localSymbolTable[index].varconst==variable)
-				printf("iload %d\n",index);
+				fprintf(file,"iload %d\n",index);
 			else
 			{
 				if(strcmp(type,"string"))
-					printf("sipush %d\n",localSymbolTable[index].intValue);
+					fprintf(file,"sipush %d\n",localSymbolTable[index].intValue);
 				else
-					printf("ldc \"%s\"\n",localSymbolTable[index].strValue);
+					fprintf(file,"ldc \"%s\"\n",localSymbolTable[index].strValue);
 			}
 		}
 	}
@@ -458,10 +582,30 @@ expression:MINUS expression %prec UMINUS
 			if(procedureTable[index].formalTypeCount!=0)
 				printf("Parameter Type Not Match:line%d\n",lineCount+1);
 			sscanf(procedureTable[index].type,"%s",$$);
+			//Generate Code
+			if(strcmp("void",procedureTable[index].type))
+				fprintf(file,"invokestatic int a.%s()\n",$1);
+			else
+				fprintf(file,"invokestatic void a.%s()\n",$1);
 		}
 	}	
 } 
-|IDENTIFIER{checkProcedure($1);sscanf($1,"%s",callProcedureName);} LEFTPARENTHESES commaseparated_expressions RIGHTPARENTHESES	{sscanf(procedureTable[lookupProcedure(procedureTable,$1,procedureCount)].type,"%s",$$);}
+|IDENTIFIER
+{
+	checkProcedure($1);
+	sscanf($1,"%s",callProcedureName);
+} 
+LEFTPARENTHESES commaseparated_expressions 
+RIGHTPARENTHESES	
+{
+	sscanf(procedureTable[lookupProcedure(procedureTable,$1,procedureCount)].type,"%s",$$);
+	//Generate Code
+	int index=lookupProcedure(procedureTable,$1,procedureCount);
+	fprintf(file,"invokestatic int a.%s(int",$1);
+	for(int i=0;i<procedureTable[index].formalTypeCount-1;i++)
+		fprintf(file,",int");
+	fprintf(file,")\n");
+}
 |IDENTIFIER{checkScope($1);} LEFTSQUAREBRACKETS expression RIGHTSQUAREBRACKETS	
 {
 	if(strcmp($4,"integer"))
@@ -475,8 +619,8 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf("boolean","%s",$$);
 	//Generate Code
-	printf("isub\niflt L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
+	fprintf(file,"isub\niflt Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
 }
 |expression LESSEQUAL expression
 {
@@ -484,8 +628,8 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf("boolean","%s",$$);
 	//Generate Code
-	printf("isub\nifle L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
+	fprintf(file,"isub\nifle Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
 }	
 |expression EQUAL expression	
 {
@@ -493,8 +637,8 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf("boolean","%s",$$);
 	//Generate Code
-	printf("isub\nifeq L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
+	fprintf(file,"isub\nifeq Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
 }
 |expression GREATEREQUAL expression	
 {
@@ -502,8 +646,8 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf("boolean","%s",$$);
 	//Generate Code
-	printf("isub\nifge L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
+	fprintf(file,"isub\nifge Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
 }
 |expression GREATER expression	
 {
@@ -511,8 +655,8 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf("boolean","%s",$$);
 	//Generate Code
-	printf("isub\nifgt L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
+	fprintf(file,"isub\nifgt Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
 }
 |expression NOTEQUAL expression	
 {
@@ -520,8 +664,8 @@ expression:MINUS expression %prec UMINUS
 		printf("Expression Not Consistent:line%d\n",lineCount+1);
 	sscanf("boolean","%s",$$);
 	//Generate Code
-	printf("isub\nifne L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
+	fprintf(file,"isub\nifne Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
 }
 |expression XOR expression
 {
@@ -529,7 +673,7 @@ expression:MINUS expression %prec UMINUS
 		printf("Only Boolean:line%d\n",lineCount+1);
 	sscanf("boolean","%s",$$);
 	//Generate Code
-	printf("ixor\n");
+	fprintf(file,"ixor\n");
 }
 |expression AND expression
 {
@@ -537,7 +681,7 @@ expression:MINUS expression %prec UMINUS
 		printf("Only Boolean:line%d\n",lineCount+1);
 	sscanf("boolean","%s",$$);
 	//Generate Code
-	printf("iand\n");
+	fprintf(file,"iand\n");
 }	
 |expression OR expression
 {
@@ -545,7 +689,7 @@ expression:MINUS expression %prec UMINUS
 		printf("Only Boolean:line%d\n",lineCount+1);
 	sscanf("boolean","%s",$$);
 	//Generate Code
-	printf("ior\n");
+	fprintf(file,"ior\n");
 }	
 ;
 commaseparated_expressions:expression
@@ -590,6 +734,8 @@ int yyerror(char *s)
 }
 int main(void)
 {
+	file=fopen("a.jasm","w+");
 	yyparse();
+	fclose(file);
 	return 0;
 }
