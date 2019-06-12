@@ -69,6 +69,9 @@
 
 	extern int lineCount;
 	
+	//File
+	FILE *file;
+	
 	//SymbolTable
 	enum varconstEnum
 	{
@@ -180,7 +183,7 @@
 	//Parameter Match
 	int parameterCount=0;
 	char callProcedureName[100];
-	
+
 	void addType(char type[],enum varconstEnum varconst)
 	{
 		if(scope==global)
@@ -191,7 +194,7 @@
 				globalSymbolTable[i].varconst=varconst;
 				//Generate Code
 				if(varconst==variable)
-					printf("field static int %s\n",globalSymbolTable[i].name);
+					fprintf(file,"field static int %s\n",globalSymbolTable[i].name);
 			}
 		}
 		else
@@ -242,9 +245,12 @@
 	}
 	
 	//Label
-	int labelCount=0;
+	int ifLabelCount=0;
+	int whileLabelCount=0;
+	int booleanLabelCount=0;
+	
 
-#line 248 "y.tab.c" /* yacc.c:339  */
+#line 254 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -418,12 +424,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 187 "CompilerProject2.y" /* yacc.c:355  */
+#line 193 "CompilerProject2.y" /* yacc.c:355  */
 
 	int integerVal;
 	char stringVal[100];
 
-#line 427 "y.tab.c" /* yacc.c:355  */
+#line 433 "y.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -440,7 +446,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 444 "y.tab.c" /* yacc.c:358  */
+#line 450 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -682,16 +688,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   380
+#define YYLAST   364
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  68
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  39
+#define YYNNTS  47
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  91
+#define YYNRULES  99
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  196
+#define YYNSTATES  202
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -744,16 +750,16 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   217,   217,   222,   227,   233,   215,   243,   244,   246,
-     247,   248,   251,   252,   253,   255,   258,   259,   260,   262,
-     265,   266,   268,   271,   272,   276,   276,   278,   276,   284,
-     287,   286,   295,   298,   297,   306,   308,   309,   313,   314,
-     317,   317,   322,   322,   329,   330,   331,   331,   332,   333,
-     334,   339,   344,   349,   349,   355,   355,   358,   364,   372,
-     380,   388,   396,   404,   405,   414,   464,   464,   465,   465,
-     472,   481,   490,   499,   508,   517,   526,   534,   542,   551,
-     561,   560,   570,   571,   572,   573,   576,   577,   578,   579,
-     582,   583
+       0,   223,   223,   228,   233,   239,   221,   249,   250,   252,
+     253,   254,   257,   258,   259,   261,   264,   265,   266,   268,
+     271,   272,   274,   277,   278,   284,   291,   298,   282,   309,
+     312,   311,   322,   325,   324,   335,   337,   338,   342,   343,
+     346,   346,   360,   360,   368,   367,   384,   383,   399,   399,
+     400,   401,   404,   409,   402,   422,   428,   434,   421,   444,
+     444,   457,   456,   472,   473,   477,   483,   491,   499,   507,
+     515,   523,   524,   533,   589,   588,   604,   604,   611,   620,
+     629,   638,   647,   656,   665,   673,   681,   690,   700,   699,
+     709,   710,   711,   712,   715,   716,   717,   718,   721,   722
 };
 #endif
 
@@ -778,8 +784,9 @@ static const char *const yytname[] =
   "constant_dec", "variable_decs", "variable_dec", "array_decs",
   "array_dec", "identifiers", "function_decs", "$@5", "$@6", "$@7",
   "arguments", "$@8", "argument", "$@9", "proceduretype", "statements",
-  "statement", "$@10", "$@11", "$@12", "$@13", "$@14", "expression",
-  "$@15", "$@16", "commaseparated_expressions", "$@17", "constant",
+  "statement", "$@10", "$@11", "$@12", "$@13", "$@14", "$@15", "$@16",
+  "$@17", "$@18", "$@19", "$@20", "$@21", "else_statements", "expression",
+  "$@22", "$@23", "commaseparated_expressions", "$@24", "constant",
   "datatype", "zero_statements", YY_NULLPTR
 };
 #endif
@@ -799,12 +806,12 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -116
+#define YYPACT_NINF -111
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-116)))
+  (!!((Yystate) == (-111)))
 
-#define YYTABLE_NINF -81
+#define YYTABLE_NINF -89
 
 #define yytable_value_is_error(Yytable_value) \
   0
@@ -813,26 +820,27 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-     -22,   -31,    37,  -116,  -116,   -27,   -25,   -23,    54,  -116,
-     -27,  -116,   -23,    85,    38,  -116,    29,  -116,   -23,    94,
-     -23,    55,  -116,  -116,    75,    24,     8,  -116,  -116,  -116,
-    -116,   100,    49,  -116,    42,   101,   122,  -116,  -116,  -116,
-    -116,   126,   -17,  -116,  -116,  -116,  -116,   127,  -116,  -116,
-      74,  -116,  -116,   144,    32,   146,    89,   147,   164,     7,
-       7,     2,   165,    88,    90,  -116,    32,   133,   113,   169,
-      49,  -116,     7,     7,     7,    15,   123,  -116,   143,  -116,
-     163,     7,   166,   181,   185,   186,  -116,  -116,   130,   200,
-      49,  -116,   -27,   221,   239,   195,   205,   204,  -116,     7,
-       7,     7,     7,     7,     7,     7,     7,     7,     7,     7,
-       7,     7,     7,  -116,  -116,   257,     7,     7,  -116,     7,
-     208,  -116,   182,  -116,   201,   177,  -116,     7,     7,    60,
-      60,   195,   195,   303,    96,    96,    96,    96,    96,    96,
-     331,   317,   345,   197,   183,   273,   103,   240,  -116,   202,
-      49,   246,    32,    32,   258,   289,    32,  -116,   242,   280,
-     294,  -116,   335,   290,   347,   332,    -9,  -116,  -116,   333,
-       7,     7,  -116,  -116,   363,  -116,   307,    32,   366,   367,
-     203,  -116,    49,  -116,   337,  -116,  -116,  -116,  -116,   369,
-     370,   246,    55,  -116,  -116,  -116
+     -37,   -55,    32,  -111,  -111,   -26,   -42,   -28,    33,  -111,
+     -26,  -111,   -28,    61,    60,  -111,    18,  -111,   -28,    84,
+     -28,    42,  -111,  -111,    73,    48,    20,  -111,  -111,  -111,
+    -111,    98,   -12,  -111,    41,    77,   121,  -111,  -111,  -111,
+    -111,   106,   -17,  -111,  -111,  -111,  -111,   125,  -111,  -111,
+      72,  -111,  -111,   126,    38,   130,    86,   146,   145,  -111,
+    -111,    -1,  -111,    92,    89,  -111,    38,   117,   110,   166,
+     -12,  -111,    12,    12,    12,  -111,    12,    12,    21,   123,
+    -111,   165,   147,   181,   168,   184,  -111,  -111,   128,   200,
+     -12,  -111,   -26,   221,   143,   163,   239,   177,   187,   202,
+    -111,    12,    12,    12,    12,    12,    12,    12,    12,    12,
+      12,    12,    12,    12,    12,    12,    12,    12,  -111,    12,
+     206,  -111,   164,  -111,   185,   159,  -111,  -111,  -111,    12,
+      12,    54,    54,   177,   177,   285,    80,    80,    80,    80,
+      80,    80,   313,   299,   327,   285,   183,   255,   103,   222,
+    -111,   167,   -12,   244,    38,  -111,   241,   271,   242,  -111,
+     240,   278,   317,  -111,   330,   273,   342,   314,    38,  -111,
+    -111,   318,    12,    12,  -111,  -111,   347,  -111,   290,  -111,
+      38,   203,  -111,   -12,  -111,   319,  -111,  -111,  -111,   350,
+      38,   320,   321,   244,    42,  -111,   353,   354,  -111,  -111,
+    -111,  -111
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -843,41 +851,44 @@ static const yytype_uint8 yydefact[] =
        0,     0,     0,     2,     1,     8,     0,     0,    24,     3,
        8,    11,    21,     0,     0,     9,    14,    10,    18,     0,
        0,    29,     7,    20,     0,     0,    24,    12,    13,    16,
-      17,     0,     0,    23,     0,     0,     0,    83,    84,    85,
-      82,     0,     0,    89,    87,    88,    86,     0,    25,     4,
-       0,    15,    19,    32,    91,     0,     0,    37,     0,     0,
-       0,     0,     0,    40,     0,    90,    38,     0,     0,     0,
-       0,    26,     0,     0,     0,    65,     0,    64,     0,    48,
-       0,     0,     0,     0,     0,     0,    46,    39,     0,     0,
-       0,    36,     8,     0,     0,    57,     0,     0,    44,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,    45,    49,     0,     0,     0,    54,     0,
-       0,     5,     0,    30,     0,     0,    63,     0,     0,    60,
-      61,    58,    59,    62,    70,    71,    73,    74,    72,    75,
-      77,    78,    76,     0,     0,     0,    79,     0,    47,     0,
-       0,    35,     0,    91,     0,     0,    91,    41,     0,     0,
-       0,     6,     0,     0,     0,     0,     0,    67,    69,     0,
-       0,     0,    56,    22,     0,    31,     0,    91,     0,     0,
-       0,    81,     0,    27,     0,    51,    52,    43,    33,     0,
-       0,    35,    29,    50,    34,    28
+      17,     0,     0,    23,     0,     0,     0,    91,    92,    93,
+      90,     0,     0,    97,    95,    96,    94,     0,    25,     4,
+       0,    15,    19,    32,    99,     0,     0,    37,     0,    44,
+      46,     0,    55,    40,     0,    98,    38,     0,     0,     0,
+       0,    26,     0,     0,     0,    50,     0,     0,    73,     0,
+      72,     0,     0,     0,     0,     0,    48,    39,     0,     0,
+       0,    36,     8,     0,     0,     0,     0,    65,     0,     0,
+      51,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,    60,     0,
+       0,     5,     0,    30,     0,     0,    45,    47,    71,     0,
+       0,    68,    69,    66,    67,    70,    78,    79,    81,    82,
+      80,    83,    85,    86,    84,    56,     0,     0,    87,     0,
+      49,     0,     0,    35,     0,    52,     0,     0,     0,    41,
+       0,     0,     0,     6,     0,     0,     0,     0,    99,    75,
+      77,     0,     0,     0,    62,    22,     0,    31,     0,    53,
+      99,     0,    89,     0,    27,    64,    57,    43,    33,     0,
+      99,     0,     0,    35,    29,    63,     0,     0,    34,    28,
+      54,    58
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -116,  -116,  -116,  -116,  -116,  -116,    -4,  -116,   360,  -116,
-     359,  -116,    23,  -116,    11,   187,  -116,  -116,  -116,  -116,
-    -116,   189,  -116,  -116,   -65,  -116,  -116,  -116,  -116,  -116,
-    -116,   -57,  -116,  -116,  -115,  -116,   353,   -70,   -74
+    -111,  -111,  -111,  -111,  -111,  -111,    -7,  -111,   344,  -111,
+     343,  -111,    10,  -111,    59,   169,  -111,  -111,  -111,  -111,
+    -111,   171,  -111,  -111,   -64,  -111,  -111,  -111,  -111,  -111,
+    -111,  -111,  -111,  -111,  -111,  -111,  -111,  -111,  -111,   -60,
+    -111,  -111,  -110,  -111,   337,   -70,  -104
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
-      -1,     2,     5,    21,    54,   149,     9,    10,    15,    16,
+      -1,     2,     5,    21,    54,   151,     9,    10,    15,    16,
       17,    18,    11,    12,    13,    35,    53,    92,   189,    57,
-     151,   164,   191,    71,    65,    66,    82,    83,   120,    84,
-      85,   146,    96,    97,   147,   159,    77,    47,    67
+     153,   166,   193,    71,    65,    66,    82,    83,    73,    74,
+     120,   168,   185,    81,   158,   192,    84,    85,   191,   148,
+      98,    99,   149,   161,    80,    47,    67
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -885,88 +896,84 @@ static const yytype_int16 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-      91,    87,    76,    78,    80,     6,    22,    79,    73,    36,
-      43,    20,   154,    73,    74,    93,    94,    95,    19,    74,
-     123,   -66,     1,   -68,   115,    44,   177,   178,    25,    31,
-       7,    33,     3,    45,    46,    23,     8,     4,    14,    28,
-       8,    30,   129,   130,   131,   132,   133,   134,   135,   136,
-     137,   138,   139,   140,   141,   142,   181,    20,    25,   144,
-     145,    37,    38,    39,    40,    75,    37,    38,    39,    40,
-      75,   155,    58,   101,   102,   103,    43,    59,    60,   166,
-     162,    61,   169,    37,    38,    39,    40,   165,   124,    24,
-      62,    44,    26,   -53,   -55,    63,   -42,    64,    32,    45,
-      46,    36,    34,   184,    42,    48,   -80,    99,   100,   101,
-     102,   103,   188,   180,    99,   100,   101,   102,   103,   104,
-     105,   106,   107,   108,   109,   110,   111,   112,    98,    49,
-      50,    51,    52,    55,    99,   100,   101,   102,   103,   104,
-     105,   106,   107,   108,   109,   110,   111,   112,   113,    68,
-      56,    70,    69,    86,    99,   100,   101,   102,   103,   104,
-     105,   106,   107,   108,   109,   110,   111,   112,   114,    88,
-      72,    81,    89,    90,    99,   100,   101,   102,   103,   104,
-     105,   106,   107,   108,   109,   110,   111,   112,   157,   117,
-     118,   116,   119,   121,    99,   100,   101,   102,   103,   104,
-     105,   106,   107,   108,   109,   110,   111,   112,   187,   122,
-     103,   127,   128,   148,    99,   100,   101,   102,   103,   104,
-     105,   106,   107,   108,   109,   110,   111,   112,   125,   152,
-     153,   156,    99,   100,   101,   102,   103,   104,   105,   106,
-     107,   108,   109,   110,   111,   112,   126,   160,   150,   163,
-      99,   100,   101,   102,   103,   104,   105,   106,   107,   108,
-     109,   110,   111,   112,   143,   167,   161,   170,    99,   100,
+      91,    79,    87,    22,    75,    76,     6,     1,     3,    36,
+      43,    77,    93,    94,    95,    43,    96,    97,    76,   156,
+     123,    14,    23,    20,    77,    44,    28,   -74,    30,   -76,
+      44,     7,     4,    45,    46,     8,    20,     8,    45,    46,
+      25,   131,   132,   133,   134,   135,   136,   137,   138,   139,
+     140,   141,   142,   143,   144,   145,   146,   147,    37,    38,
+      39,    40,    78,   182,   179,    24,    19,   103,   104,   105,
+     157,    37,    38,    39,    40,    78,   186,    31,    58,    33,
+      25,    26,   164,    59,    60,   124,   195,    61,    32,    34,
+     167,   101,   102,   103,   104,   105,    62,   -59,   -61,    36,
+     -42,    63,    42,    64,    48,    49,   -88,    37,    38,    39,
+      40,    51,   181,   188,   101,   102,   103,   104,   105,   106,
+     107,   108,   109,   110,   111,   112,   113,   114,   100,    50,
+      52,    55,    56,    68,   101,   102,   103,   104,   105,   106,
+     107,   108,   109,   110,   111,   112,   113,   114,   126,    69,
+      70,    72,    86,    88,   101,   102,   103,   104,   105,   106,
+     107,   108,   109,   110,   111,   112,   113,   114,   127,    89,
+      90,   115,   116,   118,   101,   102,   103,   104,   105,   106,
+     107,   108,   109,   110,   111,   112,   113,   114,   159,   117,
+     119,   121,   105,   129,   101,   102,   103,   104,   105,   106,
+     107,   108,   109,   110,   111,   112,   113,   114,   187,   122,
+     130,   150,   155,   154,   101,   102,   103,   104,   105,   106,
+     107,   108,   109,   110,   111,   112,   113,   114,   125,   162,
+     152,   163,   101,   102,   103,   104,   105,   106,   107,   108,
+     109,   110,   111,   112,   113,   114,   128,   165,   169,   171,
      101,   102,   103,   104,   105,   106,   107,   108,   109,   110,
-     111,   112,   158,   171,    99,   100,   101,   102,   103,   104,
-     105,   106,   107,   108,   109,   110,   111,   112,   168,   172,
-      99,   100,   101,   102,   103,   104,   105,   106,   107,   108,
-     109,   110,   111,   112,    99,   100,   101,   102,   103,   104,
-     105,   106,   107,   108,   109,   110,   111,   112,    99,   100,
+     111,   112,   113,   114,   160,   172,   101,   102,   103,   104,
+     105,   106,   107,   108,   109,   110,   111,   112,   113,   114,
+     170,   173,   101,   102,   103,   104,   105,   106,   107,   108,
+     109,   110,   111,   112,   113,   114,   101,   102,   103,   104,
+     105,   106,   107,   108,   109,   110,   111,   112,   113,   114,
      101,   102,   103,   104,   105,   106,   107,   108,   109,   110,
-     173,   112,    99,   100,   101,   102,   103,   104,   105,   106,
-     107,   108,   109,   174,   175,   112,    99,   100,   101,   102,
-     103,   104,   105,   106,   107,   108,   109,   182,   176,   179,
-     183,   185,   186,   190,   192,   193,    27,    29,    41,   195,
-     194
+     111,   112,   174,   114,   101,   102,   103,   104,   105,   106,
+     107,   108,   109,   110,   111,   175,   176,   114,   101,   102,
+     103,   104,   105,   106,   107,   108,   109,   110,   111,   177,
+     178,   183,   180,   184,   190,   194,   196,   197,   200,   201,
+      27,    29,    41,   199,   198
 };
 
 static const yytype_uint8 yycheck[] =
 {
-      70,    66,    59,    60,    61,    32,    10,     5,     6,    26,
-      27,     3,   127,     6,    12,    72,    73,    74,     7,    12,
-      90,     6,    44,     8,    81,    42,    35,    36,    20,    18,
-      57,    20,    63,    50,    51,    12,    63,     0,    63,    16,
-      63,    18,    99,   100,   101,   102,   103,   104,   105,   106,
-     107,   108,   109,   110,   111,   112,   171,     3,    20,   116,
-     117,    59,    60,    61,    62,    63,    59,    60,    61,    62,
-      63,   128,    40,    13,    14,    15,    27,    45,    46,   153,
-     150,    49,   156,    59,    60,    61,    62,   152,    92,     4,
-      58,    42,    63,     5,     6,    63,     8,    65,     4,    50,
-      51,    26,    47,   177,     4,    63,     3,    11,    12,    13,
-      14,    15,   182,   170,    11,    12,    13,    14,    15,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,     5,    28,
-       8,     5,     5,    59,    11,    12,    13,    14,    15,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,     5,     3,
-       6,     4,    63,    63,    11,    12,    13,    14,    15,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,     5,    36,
-       6,     6,    59,     4,    11,    12,    13,    14,    15,    16,
+      70,    61,    66,    10,     5,     6,    32,    44,    63,    26,
+      27,    12,    72,    73,    74,    27,    76,    77,     6,   129,
+      90,    63,    12,     3,    12,    42,    16,     6,    18,     8,
+      42,    57,     0,    50,    51,    63,     3,    63,    50,    51,
+      20,   101,   102,   103,   104,   105,   106,   107,   108,   109,
+     110,   111,   112,   113,   114,   115,   116,   117,    59,    60,
+      61,    62,    63,   173,   168,     4,     7,    13,    14,    15,
+     130,    59,    60,    61,    62,    63,   180,    18,    40,    20,
+      20,    63,   152,    45,    46,    92,   190,    49,     4,    47,
+     154,    11,    12,    13,    14,    15,    58,     5,     6,    26,
+       8,    63,     4,    65,    63,    28,     3,    59,    60,    61,
+      62,     5,   172,   183,    11,    12,    13,    14,    15,    16,
       17,    18,    19,    20,    21,    22,    23,    24,     5,     8,
-       5,    25,     6,    63,    11,    12,    13,    14,    15,    16,
+       5,    59,     6,     3,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    20,    21,    22,    23,    24,     5,    63,
+       4,     6,    63,    36,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    20,    21,    22,    23,    24,     5,    59,
+       4,     6,    25,     5,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    20,    21,    22,    23,    24,     5,     8,
+       6,    63,    15,     6,    11,    12,    13,    14,    15,    16,
       17,    18,    19,    20,    21,    22,    23,    24,     5,     9,
-      15,     6,     8,     5,    11,    12,    13,    14,    15,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,     7,    28,
-      53,    34,    11,    12,    13,    14,    15,    16,    17,    18,
-      19,    20,    21,    22,    23,    24,     7,     7,    66,     3,
+       8,     5,    53,    28,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    20,    21,    22,    23,    24,     7,     7,
+      66,    64,    11,    12,    13,    14,    15,    16,    17,    18,
+      19,    20,    21,    22,    23,    24,     7,     3,     7,     7,
       11,    12,    13,    14,    15,    16,    17,    18,    19,    20,
-      21,    22,    23,    24,     7,     7,    64,    25,    11,    12,
-      13,    14,    15,    16,    17,    18,    19,    20,    21,    22,
-      23,    24,     9,     3,    11,    12,    13,    14,    15,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,     9,     5,
+      21,    22,    23,    24,     9,    25,    11,    12,    13,    14,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+       9,     3,    11,    12,    13,    14,    15,    16,    17,    18,
+      19,    20,    21,    22,    23,    24,    11,    12,    13,    14,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
       11,    12,    13,    14,    15,    16,    17,    18,    19,    20,
-      21,    22,    23,    24,    11,    12,    13,    14,    15,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,    11,    12,
-      13,    14,    15,    16,    17,    18,    19,    20,    21,    22,
-       5,    24,    11,    12,    13,    14,    15,    16,    17,    18,
-      19,    20,    21,    63,     7,    24,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20,    21,     4,    36,    36,
-      63,     5,     5,    36,     5,     5,    16,    18,    25,   192,
-     191
+      21,    22,     5,    24,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    20,    21,     5,    63,    24,    11,    12,
+      13,    14,    15,    16,    17,    18,    19,    20,    21,     7,
+      36,     4,    34,    63,    35,     5,    36,    36,     5,     5,
+      16,    18,    25,   194,   193
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -977,22 +984,23 @@ static const yytype_uint8 yystos[] =
       75,    80,    81,    82,    63,    76,    77,    78,    79,    82,
        3,    71,    74,    80,     4,    20,    63,    76,    80,    78,
       80,    82,     4,    82,    47,    83,    26,    59,    60,    61,
-      62,   104,     4,    27,    42,    50,    51,   105,    63,    28,
+      62,   112,     4,    27,    42,    50,    51,   113,    63,    28,
        8,     5,     5,    84,    72,    59,     6,    87,    40,    45,
-      46,    49,    58,    63,    65,    92,    93,   106,     3,    63,
-       4,    91,     6,     6,    12,    63,    99,   104,    99,     5,
-      99,     6,    94,    95,    97,    98,    63,    92,    36,    59,
-       4,   105,    85,    99,    99,    99,   100,   101,     5,    11,
-      12,    13,    14,    15,    16,    17,    18,    19,    20,    21,
-      22,    23,    24,     5,     5,    99,    25,     8,     5,     6,
-      96,    63,     9,   105,    74,     7,     7,     6,     8,    99,
-      99,    99,    99,    99,    99,    99,    99,    99,    99,    99,
-      99,    99,    99,     7,    99,    99,    99,   102,     5,    73,
-      66,    88,    28,    53,   102,    99,    34,     5,     9,   103,
-       7,    64,   105,     3,    89,    92,   106,     7,     9,   106,
-      25,     3,     5,     5,    63,     7,    36,    35,    36,    36,
-      99,   102,     4,    63,   106,     5,     5,     5,   105,    86,
-      36,    90,     5,     5,    89,    83
+      46,    49,    58,    63,    65,    92,    93,   114,     3,    63,
+       4,    91,     6,    96,    97,     5,     6,    12,    63,   107,
+     112,   101,    94,    95,   104,   105,    63,    92,    36,    59,
+       4,   113,    85,   107,   107,   107,   107,   107,   108,   109,
+       5,    11,    12,    13,    14,    15,    16,    17,    18,    19,
+      20,    21,    22,    23,    24,     6,    25,     8,     5,     6,
+      98,    63,     9,   113,    74,     7,     5,     5,     7,     6,
+       8,   107,   107,   107,   107,   107,   107,   107,   107,   107,
+     107,   107,   107,   107,   107,   107,   107,   107,   107,   110,
+       5,    73,    66,    88,    28,    53,   110,   107,   102,     5,
+       9,   111,     7,    64,   113,     3,    89,    92,    99,     7,
+       9,     7,    25,     3,     5,     5,    63,     7,    36,   114,
+      34,   107,   110,     4,    63,   100,   114,     5,   113,    86,
+      35,   106,   103,    90,     5,   114,    36,    36,    89,    83,
+       5,     5
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -1002,12 +1010,12 @@ static const yytype_uint8 yyr1[] =
       75,    75,    76,    76,    76,    77,    78,    78,    78,    79,
       80,    80,    81,    82,    82,    84,    85,    86,    83,    83,
       88,    87,    87,    90,    89,    89,    91,    91,    92,    92,
-      94,    93,    95,    93,    93,    93,    96,    93,    93,    93,
-      93,    93,    93,    97,    93,    98,    93,    99,    99,    99,
-      99,    99,    99,    99,    99,    99,   100,    99,   101,    99,
-      99,    99,    99,    99,    99,    99,    99,    99,    99,   102,
-     103,   102,   104,   104,   104,   104,   105,   105,   105,   105,
-     106,   106
+      94,    93,    95,    93,    96,    93,    97,    93,    98,    93,
+      93,    93,    99,   100,    93,   101,   102,   103,    93,   104,
+      93,   105,    93,   106,   106,   107,   107,   107,   107,   107,
+     107,   107,   107,   107,   108,   107,   109,   107,   107,   107,
+     107,   107,   107,   107,   107,   107,   107,   110,   111,   110,
+     112,   112,   112,   112,   113,   113,   113,   113,   114,   114
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -1017,12 +1025,12 @@ static const yytype_uint8 yyr2[] =
        2,     1,     2,     2,     1,     4,     2,     2,     1,     4,
        2,     1,    11,     3,     1,     0,     0,     0,    14,     0,
        0,     7,     0,     0,     6,     0,     2,     0,     1,     2,
-       0,     5,     0,     8,     3,     3,     0,     4,     2,     3,
-      10,     8,     8,     0,     3,     0,     6,     2,     3,     3,
-       3,     3,     3,     3,     1,     1,     0,     5,     0,     5,
-       3,     3,     3,     3,     3,     3,     3,     3,     3,     1,
-       0,     4,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     0
+       0,     5,     0,     8,     0,     4,     0,     4,     0,     4,
+       2,     3,     0,     0,    11,     0,     0,     0,    11,     0,
+       3,     0,     6,     2,     0,     2,     3,     3,     3,     3,
+       3,     3,     1,     1,     0,     5,     0,     5,     3,     3,
+       3,     3,     3,     3,     3,     3,     3,     1,     0,     4,
+       1,     1,     1,     1,     1,     1,     1,     1,     1,     0
 };
 
 
@@ -1699,308 +1707,442 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 217 "CompilerProject2.y" /* yacc.c:1646  */
+#line 223 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	//Generate Code
-	printf("class a\n{\n");
-}
-#line 1708 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 3:
-#line 222 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	scope=local;
+	fprintf(file,"class a\n{\n");
 }
 #line 1716 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 3:
+#line 228 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	scope=local;
+}
+#line 1724 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 4:
-#line 227 "CompilerProject2.y" /* yacc.c:1646  */
+#line 233 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	//Generate Code
-	printf("method public static void main(java.lang.String[])\nmax_stack 15\nmax_locals 15\n{\n");
+	fprintf(file,"method public static void main(java.lang.String[])\nmax_stack 15\nmax_locals 15\n{\n");
 }
-#line 1725 "y.tab.c" /* yacc.c:1646  */
+#line 1733 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 233 "CompilerProject2.y" /* yacc.c:1646  */
+#line 239 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	if(strcmp((yyvsp[-9].stringVal),(yyvsp[0].stringVal)))
 		printf("Wrong Program Name:line%d\n",lineCount+1);
 	//Generate Code
-	printf("return\n}\n}");
+	fprintf(file,"return\n}\n}");
 }
-#line 1736 "y.tab.c" /* yacc.c:1646  */
+#line 1744 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 255 "CompilerProject2.y" /* yacc.c:1646  */
+#line 261 "CompilerProject2.y" /* yacc.c:1646  */
     {addSymbol((yyvsp[-3].stringVal));typeCount++;addType((yyvsp[-1].stringVal),constant);addValue(constInt,constString);}
-#line 1742 "y.tab.c" /* yacc.c:1646  */
+#line 1750 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 262 "CompilerProject2.y" /* yacc.c:1646  */
+#line 268 "CompilerProject2.y" /* yacc.c:1646  */
     {addType((yyvsp[-1].stringVal),variable);}
-#line 1748 "y.tab.c" /* yacc.c:1646  */
+#line 1756 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 268 "CompilerProject2.y" /* yacc.c:1646  */
+#line 274 "CompilerProject2.y" /* yacc.c:1646  */
     {addType((yyvsp[-1].stringVal),variable);}
-#line 1754 "y.tab.c" /* yacc.c:1646  */
+#line 1762 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 271 "CompilerProject2.y" /* yacc.c:1646  */
+#line 277 "CompilerProject2.y" /* yacc.c:1646  */
     {addSymbol((yyvsp[-2].stringVal));typeCount++;}
-#line 1760 "y.tab.c" /* yacc.c:1646  */
+#line 1768 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 272 "CompilerProject2.y" /* yacc.c:1646  */
+#line 278 "CompilerProject2.y" /* yacc.c:1646  */
     {addSymbol((yyvsp[0].stringVal));typeCount++;}
-#line 1766 "y.tab.c" /* yacc.c:1646  */
+#line 1774 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 276 "CompilerProject2.y" /* yacc.c:1646  */
-    {addProcedure((yyvsp[0].stringVal));}
-#line 1772 "y.tab.c" /* yacc.c:1646  */
+#line 284 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	addProcedure((yyvsp[0].stringVal));
+	//Generate Code
+	fprintf(file,"method public static int %s(",(yyvsp[0].stringVal));
+}
+#line 1784 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 276 "CompilerProject2.y" /* yacc.c:1646  */
-    {sscanf((yyvsp[0].stringVal),"%s",procedureTable[procedureCount-1].type);}
-#line 1778 "y.tab.c" /* yacc.c:1646  */
+#line 291 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	sscanf((yyvsp[0].stringVal),"%s",procedureTable[procedureCount-1].type);
+	//Generate Code
+	fprintf(file,")\nmax_stack 15\nmax_locals 15\n{\n");
+}
+#line 1794 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 278 "CompilerProject2.y" /* yacc.c:1646  */
+#line 298 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	if(strcmp((yyvsp[-9].stringVal),(yyvsp[0].stringVal)))
 		printf("Wrong Procedure Name:line%d\n",lineCount+1);
 	localSymbolCount=0;
+	//Generate Code
+	if(strcmp("void",(yyvsp[-6].stringVal)))
+		fprintf(file,"ireturn\n}\n");
+	else
+		fprintf(file,"return\n}\n");
 }
-#line 1788 "y.tab.c" /* yacc.c:1646  */
+#line 1809 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 287 "CompilerProject2.y" /* yacc.c:1646  */
+#line 312 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	addSymbol((yyvsp[-2].stringVal));
 	typeCount++;
 	addType((yyvsp[0].stringVal),variable);
 	sscanf((yyvsp[0].stringVal),"%s",procedureTable[procedureCount-1].formalType[procedureTable[procedureCount-1].formalTypeCount]);
 	procedureTable[procedureCount-1].formalTypeCount++;
+	//Generate Code
+	fprintf(file,"int");
 }
-#line 1800 "y.tab.c" /* yacc.c:1646  */
+#line 1823 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 298 "CompilerProject2.y" /* yacc.c:1646  */
+#line 325 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	addSymbol((yyvsp[-2].stringVal));
 	typeCount++;
 	addType((yyvsp[0].stringVal),variable);
 	sscanf((yyvsp[0].stringVal),"%s",procedureTable[procedureCount-1].formalType[procedureTable[procedureCount-1].formalTypeCount]);
 	procedureTable[procedureCount-1].formalTypeCount++;
+	//Generate Code
+	fprintf(file,",int");
 }
-#line 1812 "y.tab.c" /* yacc.c:1646  */
+#line 1837 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 308 "CompilerProject2.y" /* yacc.c:1646  */
+#line 337 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf((yyvsp[0].stringVal),"%s",(yyval.stringVal));}
-#line 1818 "y.tab.c" /* yacc.c:1646  */
+#line 1843 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 309 "CompilerProject2.y" /* yacc.c:1646  */
+#line 338 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf("void","%s",(yyval.stringVal));}
-#line 1824 "y.tab.c" /* yacc.c:1646  */
+#line 1849 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 317 "CompilerProject2.y" /* yacc.c:1646  */
+#line 346 "CompilerProject2.y" /* yacc.c:1646  */
     {checkScope((yyvsp[0].stringVal));}
-#line 1830 "y.tab.c" /* yacc.c:1646  */
+#line 1855 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 318 "CompilerProject2.y" /* yacc.c:1646  */
+#line 347 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	if(strcmp(getSymbolType((yyvsp[-4].stringVal)),(yyvsp[-1].stringVal)))
 			printf("Assignment Not Consistent:line%d\n",lineCount+1);
+	//Generate Code
+	int index=lookup(globalSymbolTable,(yyvsp[-4].stringVal),globalSymbolCount);
+	if(index!=-1)
+		fprintf(file,"putstatic int a.%s\n",(yyvsp[-4].stringVal));
+	else
+	{
+		index=lookup(localSymbolTable,(yyvsp[-4].stringVal),localSymbolCount);
+		fprintf(file,"istore %d\n",index);
+	}
 }
-#line 1839 "y.tab.c" /* yacc.c:1646  */
+#line 1873 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 322 "CompilerProject2.y" /* yacc.c:1646  */
+#line 360 "CompilerProject2.y" /* yacc.c:1646  */
     {checkScope((yyvsp[0].stringVal));}
-#line 1845 "y.tab.c" /* yacc.c:1646  */
+#line 1879 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 323 "CompilerProject2.y" /* yacc.c:1646  */
+#line 361 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	if(strcmp(getSymbolType((yyvsp[-7].stringVal)),(yyvsp[-1].stringVal)))
 		printf("Assignment Not Consistent:line%d\n",lineCount+1);
 	if(strcmp((yyvsp[-4].stringVal),"integer"))
 		printf("Only Integer:line%d\n",lineCount+1);
 }
-#line 1856 "y.tab.c" /* yacc.c:1646  */
+#line 1890 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 44:
+#line 368 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	//Generate Code
+	fprintf(file,"getstatic java.io.PrintStream java.lang.System.out\n");
+}
+#line 1899 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 374 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	//Generate Code
+	if(!strcmp("string",(yyvsp[-1].stringVal)))
+		fprintf(file,"invokevirtual void java.io.PrintStream.print(java.lang.String)\n");
+	else if(!strcmp("boolean",(yyvsp[-1].stringVal)))
+		fprintf(file,"invokevirtual void java.io.PrintStream.print(boolean)\n");
+	else
+		fprintf(file,"invokevirtual void java.io.PrintStream.print(int)\n");
+}
+#line 1913 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 331 "CompilerProject2.y" /* yacc.c:1646  */
+#line 384 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	//Generate Code
+	fprintf(file,"getstatic java.io.PrintStream java.lang.System.out\n");
+}
+#line 1922 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 47:
+#line 390 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	//Generate Code
+	if(!strcmp("string",(yyvsp[-1].stringVal)))
+		fprintf(file,"invokevirtual void java.io.PrintStream.println(java.lang.String)\n");
+	else if(!strcmp("boolean",(yyvsp[-1].stringVal)))
+		fprintf(file,"invokevirtual void java.io.PrintStream.println(boolean)\n");
+	else
+		fprintf(file,"invokevirtual void java.io.PrintStream.println(int)\n");
+}
+#line 1936 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 48:
+#line 399 "CompilerProject2.y" /* yacc.c:1646  */
     {checkScope((yyvsp[0].stringVal));}
-#line 1862 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 50:
-#line 335 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-7].stringVal),"boolean"))
-		printf("Only Boolean:line%d\n",lineCount+1);
-}
-#line 1871 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 51:
-#line 340 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-5].stringVal),"boolean"))
-		printf("Only Boolean:line%d\n",lineCount+1);
-}
-#line 1880 "y.tab.c" /* yacc.c:1646  */
+#line 1942 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 345 "CompilerProject2.y" /* yacc.c:1646  */
+#line 404 "CompilerProject2.y" /* yacc.c:1646  */
     {
-	if(strcmp((yyvsp[-5].stringVal),"boolean"))
-		printf("Only Boolean:line%d\n",lineCount+1);
+	//Generate Code
+	fprintf(file,"ifeq Lif%d\n",ifLabelCount);
 }
-#line 1889 "y.tab.c" /* yacc.c:1646  */
+#line 1951 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 349 "CompilerProject2.y" /* yacc.c:1646  */
-    {checkProcedure((yyvsp[0].stringVal));}
-#line 1895 "y.tab.c" /* yacc.c:1646  */
+#line 409 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	//Generate Code
+	fprintf(file,"goto Lif%d\nLif%d:\n",ifLabelCount+1,ifLabelCount);
+}
+#line 1960 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 350 "CompilerProject2.y" /* yacc.c:1646  */
+#line 414 "CompilerProject2.y" /* yacc.c:1646  */
     {
-	int index=lookupProcedure(procedureTable,(yyvsp[-2].stringVal),procedureCount);
-	if(procedureTable[index].formalTypeCount!=0)
-		printf("Parameter Type Not Match:line%d\n",lineCount+1);
+	if(strcmp((yyvsp[-8].stringVal),"boolean"))
+		printf("Only Boolean:line%d\n",lineCount+1);
+	//Generate Code
+	fprintf(file,"Lif%d:\n",ifLabelCount+1);
+	ifLabelCount+=2;
 }
-#line 1905 "y.tab.c" /* yacc.c:1646  */
+#line 1972 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 355 "CompilerProject2.y" /* yacc.c:1646  */
-    {checkProcedure((yyvsp[0].stringVal));sscanf((yyvsp[0].stringVal),"%s",callProcedureName);}
-#line 1911 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 57:
-#line 359 "CompilerProject2.y" /* yacc.c:1646  */
+#line 422 "CompilerProject2.y" /* yacc.c:1646  */
     {
-	sscanf((yyvsp[0].stringVal),"%s",(yyval.stringVal));
 	//Generate Code
-	printf("ineg\n");
-}
-#line 1921 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 58:
-#line 365 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
-	//Generate Code
-	printf("imul\n");
-}
-#line 1933 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 59:
-#line 373 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
-	//Generate Code
-	printf("idiv\n");
-}
-#line 1945 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 60:
-#line 381 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
-	//Generate Code
-	printf("iadd\n");
-}
-#line 1957 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 61:
-#line 389 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
-	//Generate Code
-	printf("isub\n");
-}
-#line 1969 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 62:
-#line 397 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
-	//Generate Code
-	printf("irem\n");
+	fprintf(file,"Lwhile%d:\n",whileLabelCount);
 }
 #line 1981 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 63:
-#line 404 "CompilerProject2.y" /* yacc.c:1646  */
-    {sscanf((yyvsp[-1].stringVal),"%s",(yyval.stringVal));}
-#line 1987 "y.tab.c" /* yacc.c:1646  */
+  case 56:
+#line 428 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	//Generate Code
+	fprintf(file,"ifeq Lwhile%d\n",whileLabelCount+1);
+}
+#line 1990 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 64:
-#line 406 "CompilerProject2.y" /* yacc.c:1646  */
+  case 57:
+#line 434 "CompilerProject2.y" /* yacc.c:1646  */
     {
-	sscanf((yyvsp[0].stringVal),"%s",(yyval.stringVal));
 	//Generate Code
-	if(strcmp((yyvsp[0].stringVal),"string"))
-		printf("sipush %d\n",constInt);
-	else
-		printf("ldc \"%s\"\n",constString);
+	fprintf(file,"goto Lwhile%d\nLwhile%d:\n",whileLabelCount,whileLabelCount+1);
+	whileLabelCount+=2;
 }
 #line 2000 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 58:
+#line 440 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-7].stringVal),"boolean"))
+		printf("Only Boolean:line%d\n",lineCount+1);
+}
+#line 2009 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 59:
+#line 444 "CompilerProject2.y" /* yacc.c:1646  */
+    {checkProcedure((yyvsp[0].stringVal));}
+#line 2015 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 60:
+#line 445 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	int index=lookupProcedure(procedureTable,(yyvsp[-2].stringVal),procedureCount);
+	if(procedureTable[index].formalTypeCount!=0)
+		printf("Parameter Type Not Match:line%d\n",lineCount+1);
+	//Generate Code
+	if(strcmp("void",procedureTable[index].type))
+		fprintf(file,"invokestatic int a.%s()\n",(yyvsp[-2].stringVal));
+	else
+		fprintf(file,"invokestatic void a.%s()\n",(yyvsp[-2].stringVal));
+	
+}
+#line 2031 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 61:
+#line 457 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	checkProcedure((yyvsp[0].stringVal));
+	sscanf((yyvsp[0].stringVal),"%s",callProcedureName);
+}
+#line 2040 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 62:
+#line 462 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	//Generate Code
+	int index=lookupProcedure(procedureTable,(yyvsp[-5].stringVal),procedureCount);
+	fprintf(file,"invokestatic int a.%s(int",(yyvsp[-5].stringVal));
+	for(int i=0;i<procedureTable[index].formalTypeCount-1;i++)
+		fprintf(file,",int");
+	fprintf(file,")\n");
+}
+#line 2053 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 65:
-#line 415 "CompilerProject2.y" /* yacc.c:1646  */
+#line 478 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	sscanf((yyvsp[0].stringVal),"%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"ineg\n");
+}
+#line 2063 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 66:
+#line 484 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"imul\n");
+}
+#line 2075 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 67:
+#line 492 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"idiv\n");
+}
+#line 2087 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 68:
+#line 500 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"iadd\n");
+}
+#line 2099 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 69:
+#line 508 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"isub\n");
+}
+#line 2111 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 70:
+#line 516 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf((yyvsp[-2].stringVal),"%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"irem\n");
+}
+#line 2123 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 71:
+#line 523 "CompilerProject2.y" /* yacc.c:1646  */
+    {sscanf((yyvsp[-1].stringVal),"%s",(yyval.stringVal));}
+#line 2129 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 72:
+#line 525 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	sscanf((yyvsp[0].stringVal),"%s",(yyval.stringVal));
+	//Generate Code
+	if(strcmp((yyvsp[0].stringVal),"string"))
+		fprintf(file,"sipush %d\n",constInt);
+	else
+		fprintf(file,"ldc \"%s\"\n",constString);
+}
+#line 2142 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 73:
+#line 534 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	checkall((yyvsp[0].stringVal));
 	char* type=getSymbolType((yyvsp[0].stringVal));
@@ -2014,14 +2156,14 @@ yyreduce:
 		{
 			//Variable
 			if(globalSymbolTable[index].varconst==variable)
-				printf("getstatic int a.%s\n",(yyvsp[0].stringVal));
+				fprintf(file,"getstatic int a.%s\n",(yyvsp[0].stringVal));
 			//Constant
 			else
 			{
 				if(strcmp(type,"string"))
-					printf("sipush %d\n",globalSymbolTable[index].intValue);
+					fprintf(file,"sipush %d\n",globalSymbolTable[index].intValue);
 				else
-					printf("ldc \"%s\"\n",globalSymbolTable[index].strValue);
+					fprintf(file,"ldc \"%s\"\n",globalSymbolTable[index].strValue);
 			}			
 		}
 		//Local
@@ -2029,13 +2171,13 @@ yyreduce:
 		{
 			index=lookup(localSymbolTable,(yyvsp[0].stringVal),localSymbolCount);
 			if(localSymbolTable[index].varconst==variable)
-				printf("iload %d\n",index);
+				fprintf(file,"iload %d\n",index);
 			else
 			{
 				if(strcmp(type,"string"))
-					printf("sipush %d\n",localSymbolTable[index].intValue);
+					fprintf(file,"sipush %d\n",localSymbolTable[index].intValue);
 				else
-					printf("ldc \"%s\"\n",localSymbolTable[index].strValue);
+					fprintf(file,"ldc \"%s\"\n",localSymbolTable[index].strValue);
 			}
 		}
 	}
@@ -2047,156 +2189,172 @@ yyreduce:
 			if(procedureTable[index].formalTypeCount!=0)
 				printf("Parameter Type Not Match:line%d\n",lineCount+1);
 			sscanf(procedureTable[index].type,"%s",(yyval.stringVal));
+			//Generate Code
+			if(strcmp("void",procedureTable[index].type))
+				fprintf(file,"invokestatic int a.%s()\n",(yyvsp[0].stringVal));
+			else
+				fprintf(file,"invokestatic void a.%s()\n",(yyvsp[0].stringVal));
 		}
 	}	
 }
-#line 2054 "y.tab.c" /* yacc.c:1646  */
+#line 2201 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 66:
-#line 464 "CompilerProject2.y" /* yacc.c:1646  */
-    {checkProcedure((yyvsp[0].stringVal));sscanf((yyvsp[0].stringVal),"%s",callProcedureName);}
-#line 2060 "y.tab.c" /* yacc.c:1646  */
+  case 74:
+#line 589 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	checkProcedure((yyvsp[0].stringVal));
+	sscanf((yyvsp[0].stringVal),"%s",callProcedureName);
+}
+#line 2210 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 67:
-#line 464 "CompilerProject2.y" /* yacc.c:1646  */
-    {sscanf(procedureTable[lookupProcedure(procedureTable,(yyvsp[-4].stringVal),procedureCount)].type,"%s",(yyval.stringVal));}
-#line 2066 "y.tab.c" /* yacc.c:1646  */
+  case 75:
+#line 595 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	sscanf(procedureTable[lookupProcedure(procedureTable,(yyvsp[-4].stringVal),procedureCount)].type,"%s",(yyval.stringVal));
+	//Generate Code
+	int index=lookupProcedure(procedureTable,(yyvsp[-4].stringVal),procedureCount);
+	fprintf(file,"invokestatic int a.%s(int",(yyvsp[-4].stringVal));
+	for(int i=0;i<procedureTable[index].formalTypeCount-1;i++)
+		fprintf(file,",int");
+	fprintf(file,")\n");
+}
+#line 2224 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 68:
-#line 465 "CompilerProject2.y" /* yacc.c:1646  */
+  case 76:
+#line 604 "CompilerProject2.y" /* yacc.c:1646  */
     {checkScope((yyvsp[0].stringVal));}
-#line 2072 "y.tab.c" /* yacc.c:1646  */
+#line 2230 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 69:
-#line 466 "CompilerProject2.y" /* yacc.c:1646  */
+  case 77:
+#line 605 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	if(strcmp((yyvsp[-1].stringVal),"integer"))
 		printf("Only Integer:line%d\n",lineCount+1);
 	sscanf(getSymbolType((yyvsp[-4].stringVal)),"%s",(yyval.stringVal));
 }
-#line 2082 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 70:
-#line 473 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf("boolean","%s",(yyval.stringVal));
-	//Generate Code
-	printf("isub\niflt L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
-}
-#line 2095 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 71:
-#line 482 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf("boolean","%s",(yyval.stringVal));
-	//Generate Code
-	printf("isub\nifle L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
-}
-#line 2108 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 72:
-#line 491 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf("boolean","%s",(yyval.stringVal));
-	//Generate Code
-	printf("isub\nifeq L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
-}
-#line 2121 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 73:
-#line 500 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf("boolean","%s",(yyval.stringVal));
-	//Generate Code
-	printf("isub\nifge L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
-}
-#line 2134 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 74:
-#line 509 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf("boolean","%s",(yyval.stringVal));
-	//Generate Code
-	printf("isub\nifgt L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
-}
-#line 2147 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 75:
-#line 518 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
-		printf("Expression Not Consistent:line%d\n",lineCount+1);
-	sscanf("boolean","%s",(yyval.stringVal));
-	//Generate Code
-	printf("isub\nifne L%d\niconst_0\ngoto L%d\nL%d:iconst_1\nL%d:\n",labelCount,labelCount+1,labelCount,labelCount+1);
-	labelCount+=2;
-}
-#line 2160 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 76:
-#line 527 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),"boolean")||strcmp((yyvsp[0].stringVal),"boolean"))
-		printf("Only Boolean:line%d\n",lineCount+1);
-	sscanf("boolean","%s",(yyval.stringVal));
-	//Generate Code
-	printf("ixor\n");
-}
-#line 2172 "y.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 77:
-#line 535 "CompilerProject2.y" /* yacc.c:1646  */
-    {
-	if(strcmp((yyvsp[-2].stringVal),"boolean")||strcmp((yyvsp[0].stringVal),"boolean"))
-		printf("Only Boolean:line%d\n",lineCount+1);
-	sscanf("boolean","%s",(yyval.stringVal));
-	//Generate Code
-	printf("iand\n");
-}
-#line 2184 "y.tab.c" /* yacc.c:1646  */
+#line 2240 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 78:
-#line 543 "CompilerProject2.y" /* yacc.c:1646  */
+#line 612 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf("boolean","%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"isub\niflt Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
+}
+#line 2253 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 79:
+#line 621 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf("boolean","%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"isub\nifle Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
+}
+#line 2266 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 80:
+#line 630 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf("boolean","%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"isub\nifeq Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
+}
+#line 2279 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 81:
+#line 639 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf("boolean","%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"isub\nifge Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
+}
+#line 2292 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 82:
+#line 648 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf("boolean","%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"isub\nifgt Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
+}
+#line 2305 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 83:
+#line 657 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),(yyvsp[0].stringVal)))
+		printf("Expression Not Consistent:line%d\n",lineCount+1);
+	sscanf("boolean","%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"isub\nifne Lboolean%d\niconst_0\ngoto Lboolean%d\nLboolean%d:iconst_1\nLboolean%d:\n",booleanLabelCount,booleanLabelCount+1,booleanLabelCount,booleanLabelCount+1);
+	booleanLabelCount+=2;
+}
+#line 2318 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 84:
+#line 666 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	if(strcmp((yyvsp[-2].stringVal),"boolean")||strcmp((yyvsp[0].stringVal),"boolean"))
 		printf("Only Boolean:line%d\n",lineCount+1);
 	sscanf("boolean","%s",(yyval.stringVal));
 	//Generate Code
-	printf("ior\n");
+	fprintf(file,"ixor\n");
 }
-#line 2196 "y.tab.c" /* yacc.c:1646  */
+#line 2330 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 79:
-#line 552 "CompilerProject2.y" /* yacc.c:1646  */
+  case 85:
+#line 674 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),"boolean")||strcmp((yyvsp[0].stringVal),"boolean"))
+		printf("Only Boolean:line%d\n",lineCount+1);
+	sscanf("boolean","%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"iand\n");
+}
+#line 2342 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 86:
+#line 682 "CompilerProject2.y" /* yacc.c:1646  */
+    {
+	if(strcmp((yyvsp[-2].stringVal),"boolean")||strcmp((yyvsp[0].stringVal),"boolean"))
+		printf("Only Boolean:line%d\n",lineCount+1);
+	sscanf("boolean","%s",(yyval.stringVal));
+	//Generate Code
+	fprintf(file,"ior\n");
+}
+#line 2354 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 87:
+#line 691 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	int index=lookupProcedure(procedureTable,callProcedureName,procedureCount);
 	if(strcmp((yyvsp[0].stringVal),procedureTable[index].formalType[parameterCount]))
@@ -2205,70 +2363,70 @@ yyreduce:
 		printf("Parameter Type Not Match:line%d\n",lineCount+1);
 	parameterCount=0;
 }
-#line 2209 "y.tab.c" /* yacc.c:1646  */
+#line 2367 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 80:
-#line 561 "CompilerProject2.y" /* yacc.c:1646  */
+  case 88:
+#line 700 "CompilerProject2.y" /* yacc.c:1646  */
     {
 	int index=lookupProcedure(procedureTable,callProcedureName,procedureCount);
 	if(strcmp((yyvsp[0].stringVal),procedureTable[index].formalType[parameterCount]))
 		printf("Parameter Type Not Match:line%d\n",lineCount+1);
 	parameterCount++;
 }
-#line 2220 "y.tab.c" /* yacc.c:1646  */
+#line 2378 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 82:
-#line 570 "CompilerProject2.y" /* yacc.c:1646  */
+  case 90:
+#line 709 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf("string","%s",(yyval.stringVal));strcpy(constString,(yyvsp[0].stringVal));}
-#line 2226 "y.tab.c" /* yacc.c:1646  */
+#line 2384 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 83:
-#line 571 "CompilerProject2.y" /* yacc.c:1646  */
+  case 91:
+#line 710 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf("integer","%s",(yyval.stringVal));constInt=(yyvsp[0].integerVal);}
-#line 2232 "y.tab.c" /* yacc.c:1646  */
+#line 2390 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 84:
-#line 572 "CompilerProject2.y" /* yacc.c:1646  */
+  case 92:
+#line 711 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf("boolean","%s",(yyval.stringVal));constInt=(yyvsp[0].integerVal);}
-#line 2238 "y.tab.c" /* yacc.c:1646  */
+#line 2396 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 85:
-#line 573 "CompilerProject2.y" /* yacc.c:1646  */
+  case 93:
+#line 712 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf("real","%s",(yyval.stringVal));}
-#line 2244 "y.tab.c" /* yacc.c:1646  */
+#line 2402 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 86:
-#line 576 "CompilerProject2.y" /* yacc.c:1646  */
+  case 94:
+#line 715 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf((yyvsp[0].stringVal),"%s",(yyval.stringVal));}
-#line 2250 "y.tab.c" /* yacc.c:1646  */
+#line 2408 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 87:
-#line 577 "CompilerProject2.y" /* yacc.c:1646  */
+  case 95:
+#line 716 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf((yyvsp[0].stringVal),"%s",(yyval.stringVal));}
-#line 2256 "y.tab.c" /* yacc.c:1646  */
+#line 2414 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 88:
-#line 578 "CompilerProject2.y" /* yacc.c:1646  */
+  case 96:
+#line 717 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf((yyvsp[0].stringVal),"%s",(yyval.stringVal));}
-#line 2262 "y.tab.c" /* yacc.c:1646  */
+#line 2420 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 89:
-#line 579 "CompilerProject2.y" /* yacc.c:1646  */
+  case 97:
+#line 718 "CompilerProject2.y" /* yacc.c:1646  */
     {sscanf((yyvsp[0].stringVal),"%s",(yyval.stringVal));}
-#line 2268 "y.tab.c" /* yacc.c:1646  */
+#line 2426 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2272 "y.tab.c" /* yacc.c:1646  */
+#line 2430 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2496,7 +2654,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 585 "CompilerProject2.y" /* yacc.c:1906  */
+#line 724 "CompilerProject2.y" /* yacc.c:1906  */
 
 int yyerror(char *s)
 {
@@ -2505,6 +2663,8 @@ int yyerror(char *s)
 }
 int main(void)
 {
+	file=fopen("a.jasm","w+");
 	yyparse();
+	fclose(file);
 	return 0;
 }
